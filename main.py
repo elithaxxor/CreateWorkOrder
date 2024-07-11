@@ -6,6 +6,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 import docx
 from docx2pdf import convert
+from tkinter import Button as tkButton
 
 
 class InvoiceAutomation:
@@ -13,14 +14,12 @@ class InvoiceAutomation:
        # self.create_invoice = None
         self.root = tk.Tk() # Create a new Tkinter window
         self.root.title('Invoice Automation')
-        self.root.geometry('500x800')
+        self.root.geometry('700x900')
 
 
-        # Create the button to create the invoice
-        self.create_button = tk.Button(self.root, text='Create Invoice', command=self.create_invoice)
 
         # Create the labels and entries for the invoice automation form
-        self.partner_label = tk.Label(self.root, text='Partner:')
+        self.partner_label = tk.Label(self.root, text='Location Name:')
         self.partner_entry = tk.Entry(self.root)
 
         self.partner_street_label = tk.Label(self.root, text='Partner Street:')
@@ -70,9 +69,12 @@ class InvoiceAutomation:
         self.notes_data_label = tk.Label(self.root, text='Notes Data:')
         self.notes_data = tk.Entry(self.root)
 
-
+       # Create the button to create the invoice
         self.nte = tk.Label(self.root, text='NTE:')
         self.nte_entry = tk.Entry(self.root)
+
+
+
 
     # Create the dropdown for the payment method
         self.payment_method_entry = tk.Entry(self.root)
@@ -81,10 +83,16 @@ class InvoiceAutomation:
         self.payment_methods.set('Wire Transfer')
         self.payment_method_dropdown = tk.OptionMenu(self.root, self.payment_methods, "Credit Card", "Check", "Wire Transfer")
 
-
-        # Pack the widgets  in the window
+        self.create_button_label = tk.Label(self.root, text='Create Invoice')
+        self.create_button = tk.Entry(self.root)
 
         padding_options = {'fill': tk.X, 'expand': True, 'padx': 5, 'pady': 5}
+
+        self.tkbutton = tkButton(self.root, text='Create Invoice', command=self.create_invoice)
+        self.tkbutton.pack(padding_options)
+
+    # Pack the widgets  in the window
+
 
         self.partner_label.pack(padding_options)
         self.partner_entry.pack(padding_options)
@@ -143,7 +151,12 @@ class InvoiceAutomation:
         self.notes_data.pack(padding_options)
 
 
-        self.create_button.pack(padding_options)
+
+
+    #self.create_button.pack(padding_options)
+        #self.create_button_label.pack(padding_options)
+
+        # self.create_button.pack(padding_options)
 
         self.root.mainloop() # Start the main loop
 
@@ -159,9 +172,12 @@ class InvoiceAutomation:
     @staticmethod
     def save_invoice(doc):
         # logic to save files to the file system
-        save_file = filedialog.asksaveasfilename(defaultextension='.pdf', filetypes=[('PDF files', '*.pdf')]) # Ask the user to save the file
+        #save_file = filedialog.asksaveasfilename(defaultextension='.pdf', filetypes=[('PDF files', '*.pdf')]) # Ask the user to save the file
+        save_file = filedialog.asksaveasfilename(defaultextension='.docx', filetypes=[('DOCX files', '*.docx')])
+
         doc.save(save_file) # Save the docx file
         convert(save_file) # Convert the docx file to a pdf file
+        convert(save_file.replace('.docx', '.pdf')) # Convert the docx file to a pdf file
         os.rename(save_file.replace('.docx', '.pdf'), save_file) # Rename the file to a pdf file
         subprocess.Popen(['open', save_file])
         print(f'[+] Invoice saved to {save_file} \n {os.getcwd()}')
@@ -169,19 +185,18 @@ class InvoiceAutomation:
 
     # loads docx template file,
     def create_invoice(self):
-        doc = docx.Document('invoice_template.docx')
+        doc = docx.Document('template.docx')
         selected_payment_method = self.payment_methods.get()
         print("[!] payment mehtods selected: ", selected_payment_method)
 
         # replace data using a dictionary for
         try:
             replacements = {
-                "<<Partner>>": self.partner_entry.get(),
-                "<<PartnerStreet>>": self.partner_street_entry.get(),
-                "<<PartnerZipCityCountry>>": self.partner_zip_city_country_entry.get(),
+                "<<Location.Name>>": self.partner_entry.get(),
+                "<<Street>>": self.partner_street_entry.get(),
+                "<<ZipCityCountry>>": self.partner_zip_city_country_entry.get(),
                 "<<InvoiceNumber>>": self.invoice_number_entry.get(),
                 "<<InvoiceDate>>": self.invoice_date_entry.get(),
-                "<<ServiceDescription>>": self.service_description_entry.get(),
                 "<<ServiceAmount>>": self.service_amount_entry.get(),
                 "<<ServiceSingleAmount>>": self.service_single_amount_entry.get(),
                 "<<PaymentTerms>>": self.payment_terms_entry.get(),
@@ -194,6 +209,7 @@ class InvoiceAutomation:
                 "<<Notes>>": self.notes.get(),
                 "<<Notes Created By>>": self.notes_createdby.get(),
                 "<<Notes Data>>": self.notes_data.get()
+
             }
 
         except ValueError as e:
@@ -266,7 +282,8 @@ class InvoiceAutomation:
 
 
 if __name__ == '__main__':
-    invoice_automation = InvoiceAutomation()
-    invoice_automation.root.mainloop()
-
+    InvoiceAutomation()
+    # invoice_automation = InvoiceAutomation()
+    # invoice_automation.root.mainloop()
+    #
 
