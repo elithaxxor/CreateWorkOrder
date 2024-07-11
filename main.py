@@ -162,6 +162,8 @@ class InvoiceAutomation:
         save_file = filedialog.asksaveasfilename(defaultextension='.pdf', filetypes=[('PDF files', '*.pdf')]) # Ask the user to save the file
         doc.save(save_file) # Save the docx file
         convert(save_file) # Convert the docx file to a pdf file
+        os.rename(save_file.replace('.docx', '.pdf'), save_file) # Rename the file to a pdf file
+        subprocess.Popen(['open', save_file])
         print(f'[+] Invoice saved to {save_file} \n {os.getcwd()}')
         return f'[+] {save_file}  Invoice saved to {save_file} \n {os.getcwd()}'
 
@@ -170,39 +172,6 @@ class InvoiceAutomation:
         doc = docx.Document('invoice_template.docx')
         selected_payment_method = self.payment_methods.get()
         print("[!] payment mehtods selected: ", selected_payment_method)
-
-
-        # Replace the placeholders with data from internal program
-        ## -->> NEED TO SET A GETTER/SETTER FOR THE DATA SO IT CAN BE PARSED FROM THE MAIN APP <<--
-        try:
-            self.replace_text(doc, '<<Partner>>', self.partner_entry.get())
-            self.replace_text(doc, '<<PartnerStreet>>', self.partner_street_entry.get())
-            self.replace_text(doc, '<<PartnerZipCityCountry>>', self.partner_zip_city_country_entry.get())
-            self.replace_text(doc, '<<InvoiceNumber>>', self.invoice_number_entry.get())
-            self.replace_text(doc, '<<InvoiceDate>>', self.invoice_date_entry.get())
-            self.replace_text(doc, '<<ServiceDescription>>', self.service_description_entry.get())
-            self.replace_text(doc, '<<ServiceAmount>>', self.service_amount_entry.get())
-            self.replace_text(doc, '<<ServiceSingleAmount>>', self.service_single_amount_entry.get())
-            self.replace_text(doc, '<<PaymentTerms>>', self.payment_terms_entry.get())
-            self.replace_text(doc, '<<PaymentMethod>>', selected_payment_method)
-            self.replace_text(doc, '<<ScheduledDate>>', self.scheduled_date.get())
-            self.replace_text(doc, '<<ProviderName>>', self.provider_name.get())
-            self.replace_text(doc, '<<NTE>>', self.nte_entry.get())
-            self.replace_text(doc, '<<LocationName>>', self.location_name_entry.get())
-            self.replace_text(doc, '<<PaymentMethod>>', selected_payment_method)
-            self.replace_text(doc, '<<ScheduledDate>>', self.scheduled_date.get())
-            self.replace_text(doc, '<<Created By>>', self.created_by.get())
-            self.replace_text(doc, '<<Notes>>', self.notes.get())
-            self.replace_text(doc, '<<Notes Created By>>', self.notes_createdby.get())
-            self.replace_text(doc, '<<Notes Data>>', self.notes_data.get())
-            self.replace_text(doc, '<<NTE>>', self.nte_entry.get())
-
-        except ValueError as e:
-            messagebox.showerror('Error', f'Error replacing placeholders: {e} \n {traceback.format_exc()}')
-            print(f'Error replacing placeholders:  {e}')
-            print(traceback.format_exc())
-            return
-
 
         # replace data using a dictionary for
         try:
@@ -233,7 +202,6 @@ class InvoiceAutomation:
             print(traceback.format_exc())
             return
 
-
         # Save the invoice to the file system
         for paragraph in list(doc.paragraphs):
             print(paragraph.text)
@@ -258,11 +226,43 @@ class InvoiceAutomation:
         save_invoice = self.save_invoice(doc)
         print(save_invoice)
 
+    # Replace the placeholders with data from internal program
+    ## -->> NEED TO SET A GETTER/SETTER FOR THE DATA SO IT CAN BE PARSED FROM THE MAIN APP <<--
+    def create_invoice_INTERNALDATA(self):
+        doc = docx.Document('invoice_template.docx')
+        selected_payment_method = self.payment_methods.get()
+        print("[!] payment mehtods selected: ", selected_payment_method)
+
+        try:
+            self.replace_text(doc, '<<Partner>>', self.partner_entry.get())
+            self.replace_text(doc, '<<PartnerStreet>>', self.partner_street_entry.get())
+            self.replace_text(doc, '<<PartnerZipCityCountry>>', self.partner_zip_city_country_entry.get())
+            self.replace_text(doc, '<<InvoiceNumber>>', self.invoice_number_entry.get())
+            self.replace_text(doc, '<<InvoiceDate>>', self.invoice_date_entry.get())
+            self.replace_text(doc, '<<ServiceDescription>>', self.service_description_entry.get())
+            self.replace_text(doc, '<<ServiceAmount>>', self.service_amount_entry.get())
+            self.replace_text(doc, '<<ServiceSingleAmount>>', self.service_single_amount_entry.get())
+            self.replace_text(doc, '<<PaymentTerms>>', self.payment_terms_entry.get())
+            self.replace_text(doc, '<<PaymentMethod>>', selected_payment_method)
+            self.replace_text(doc, '<<ScheduledDate>>', self.scheduled_date.get())
+            self.replace_text(doc, '<<ProviderName>>', self.provider_name.get())
+            self.replace_text(doc, '<<NTE>>', self.nte_entry.get())
+            self.replace_text(doc, '<<LocationName>>', self.location_name_entry.get())
+            self.replace_text(doc, '<<PaymentMethod>>', selected_payment_method)
+            self.replace_text(doc, '<<ScheduledDate>>', self.scheduled_date.get())
+            self.replace_text(doc, '<<Created By>>', self.created_by.get())
+            self.replace_text(doc, '<<Notes>>', self.notes.get())
+            self.replace_text(doc, '<<Notes Created By>>', self.notes_createdby.get())
+            self.replace_text(doc, '<<Notes Data>>', self.notes_data.get())
+            self.replace_text(doc, '<<NTE>>', self.nte_entry.get())
+
+        except ValueError as e:
+            messagebox.showerror('Error', f'Error replacing placeholders: {e} \n {traceback.format_exc()}')
+            print(f'Error replacing placeholders:  {e}')
+            print(traceback.format_exc())
+            return
 
 
-
-def create_invoice(): # Create the invoice
-    pass
 
 
 if __name__ == '__main__':
