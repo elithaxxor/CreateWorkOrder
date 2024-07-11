@@ -5,6 +5,8 @@ import traceback
 from tkinter import filedialog
 from tkinter import messagebox
 import docx
+from docx2pdf import convert
+
 
 class InvoiceAutomation:
     def __init__(self):
@@ -154,6 +156,14 @@ class InvoiceAutomation:
             if old_text in p.text:
                 p.text = p.text.replace(old_text, new_text)
 
+    @staticmethod
+    def save_invoice(doc):
+        # logic to save files to the file system
+        save_file = filedialog.asksaveasfilename(defaultextension='.pdf', filetypes=[('PDF files', '*.pdf')]) # Ask the user to save the file
+        doc.save(save_file) # Save the docx file
+        convert(save_file) # Convert the docx file to a pdf file
+        print(f'[+] Invoice saved to {save_file} \n {os.getcwd()}')
+        return f'[+] {save_file}  Invoice saved to {save_file} \n {os.getcwd()}'
 
     # loads docx template file,
     def create_invoice(self):
@@ -162,8 +172,8 @@ class InvoiceAutomation:
         print("[!] payment mehtods selected: ", selected_payment_method)
 
 
-        # Replace the placeholders in the template with the user input
-
+        # Replace the placeholders with data from internal program
+        ## -->> NEED TO SET A GETTER/SETTER FOR THE DATA SO IT CAN BE PARSED FROM THE MAIN APP <<--
         try:
             self.replace_text(doc, '<<Partner>>', self.partner_entry.get())
             self.replace_text(doc, '<<PartnerStreet>>', self.partner_street_entry.get())
@@ -187,13 +197,67 @@ class InvoiceAutomation:
             self.replace_text(doc, '<<Notes Data>>', self.notes_data.get())
             self.replace_text(doc, '<<NTE>>', self.nte_entry.get())
 
-
-            # Save the invoice to the file system
-
-        except Exception as e:
+        except ValueError as e:
             messagebox.showerror('Error', f'Error replacing placeholders: {e} \n {traceback.format_exc()}')
             print(f'Error replacing placeholders:  {e}')
             print(traceback.format_exc())
+            return
+
+
+        # replace data using a dictionary for
+        try:
+            replacements = {
+                "<<Partner>>": self.partner_entry.get(),
+                "<<PartnerStreet>>": self.partner_street_entry.get(),
+                "<<PartnerZipCityCountry>>": self.partner_zip_city_country_entry.get(),
+                "<<InvoiceNumber>>": self.invoice_number_entry.get(),
+                "<<InvoiceDate>>": self.invoice_date_entry.get(),
+                "<<ServiceDescription>>": self.service_description_entry.get(),
+                "<<ServiceAmount>>": self.service_amount_entry.get(),
+                "<<ServiceSingleAmount>>": self.service_single_amount_entry.get(),
+                "<<PaymentTerms>>": self.payment_terms_entry.get(),
+                "<<PaymentMethod>>": selected_payment_method,
+                "<<ScheduledDate>>": self.scheduled_date.get(),
+                "<<ProviderName>>": self.provider_name.get(),
+                "<<NTE>>": self.nte_entry.get(),
+                "<<LocationName>>": self.location_name_entry.get(),
+                "<<Created By>>": self.created_by.get(),
+                "<<Notes>>": self.notes.get(),
+                "<<Notes Created By>>": self.notes_createdby.get(),
+                "<<Notes Data>>": self.notes_data.get()
+            }
+
+        except ValueError as e:
+            messagebox.showerror('Error', f'Error replacing placeholders: {e} \n {traceback.format_exc()}')
+            print(f'Error replacing placeholders:  {e}')
+            print(traceback.format_exc())
+            return
+
+
+        # Save the invoice to the file system
+        for paragraph in list(doc.paragraphs):
+            print(paragraph.text)
+            for key, value in replacements.items():
+                if key in paragraph.text:
+                    paragraph.text = paragraph.text.replace(key, value)
+                    if paragraph.text:
+                        print("REPLACE TEXT TEST CASE: \n", paragraph.text)
+                    self.replace_text(doc, key, value) # calls static method to replace text in the docx file
+
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    for paragraph in cell.paragraphs:
+                        for key, value in replacements.items():
+                            if key in paragraph.text:
+                                paragraph.text = paragraph.text.replace(key, value)
+                                if paragraph.text:
+                                    print("REPLACE TEXT TEST CASE: \n", paragraph.text)
+                                self.replace_text(doc, key, value)
+
+        save_invoice = self.save_invoice(doc)
+        print(save_invoice)
+
 
 
 
