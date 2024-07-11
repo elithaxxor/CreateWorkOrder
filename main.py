@@ -56,6 +56,19 @@ class InvoiceAutomation:
         self.provider_name_label = tk.Label(self.root, text='Provider Name:')
         self.provider_name = tk.Entry(self.root)
 
+        self.created_by_label = tk.Label(self.root, text='Created By:')
+        self.created_by = tk.Entry(self.root)
+
+        self.notes_label = tk.Label(self.root, text='Notes:')
+        self.notes = tk.Entry(self.root)
+
+        self.notes_createdby_label = tk.Label(self.root, text='Notes Created By:')
+        self.notes_createdby = tk.Entry(self.root)
+
+        self.notes_data_label = tk.Label(self.root, text='Notes Data:')
+        self.notes_data = tk.Entry(self.root)
+
+
         self.nte = tk.Label(self.root, text='NTE:')
         self.nte_entry = tk.Entry(self.root)
 
@@ -115,6 +128,19 @@ class InvoiceAutomation:
         self.provider_name_label.pack(padding_options)
         self.provider_name.pack(padding_options)
 
+        self.created_by_label.pack(padding_options)
+        self.created_by.pack(padding_options)
+
+        self.notes_label.pack(padding_options)
+        self.notes.pack(padding_options)
+
+        self.notes_createdby_label.pack(padding_options)
+        self.notes_createdby.pack(padding_options)
+
+        self.notes_data_label.pack(padding_options)
+        self.notes_data.pack(padding_options)
+
+
         self.create_button.pack(padding_options)
 
         self.root.mainloop() # Start the main loop
@@ -155,6 +181,12 @@ class InvoiceAutomation:
             self.replace_text(doc, '<<LocationName>>', self.location_name_entry.get())
             self.replace_text(doc, '<<PaymentMethod>>', selected_payment_method)
             self.replace_text(doc, '<<ScheduledDate>>', self.scheduled_date.get())
+            self.replace_text(doc, '<<Created By>>', self.created_by.get())
+            self.replace_text(doc, '<<Notes>>', self.notes.get())
+            self.replace_text(doc, '<<Notes Created By>>', self.notes_createdby.get())
+            self.replace_text(doc, '<<Notes Data>>', self.notes_data.get())
+            self.replace_text(doc, '<<NTE>>', self.nte_entry.get())
+
 
             # Save the invoice to the file system
 
